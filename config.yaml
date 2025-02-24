@@ -1,0 +1,14 @@
+credentials:
+  usernames:
+    admin:
+      email: admin@example.com
+      name: admin
+      password: admin
+    operator:
+      email:  operator@example.com
+      name: operator
+      password: operator
+    user:
+      email: user@example.com
+      name: user
+      password: user
