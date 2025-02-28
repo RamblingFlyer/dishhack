@@ -132,14 +132,36 @@ if st.session_state.authenticated:
         elif analysis_type == 'Usage Prediction':
             st.subheader('Usage Prediction')
             days = st.slider('Prediction Window (Days)', 1, 30, 7)
+            confidence = st.slider('Confidence Level (%)', 50, 95, 80)
+            
             if st.button('Generate Prediction'):
-                # Simulated prediction data
+                # Simulated AI prediction with confidence intervals
                 dates = pd.date_range(start='2024-01-01', periods=days)
-                predictions = np.random.randn(days).cumsum()
-                fig = px.line(x=dates, y=predictions,
-                             labels={'x': 'Date', 'y': 'Predicted Usage'},
-                             title='Usage Prediction')
+                base_predictions = np.random.randn(days).cumsum()
+                
+                # Generate confidence intervals
+                confidence_range = (100 - confidence) / 100
+                lower_bound = base_predictions - np.random.rand(days) * confidence_range * 10
+                upper_bound = base_predictions + np.random.rand(days) * confidence_range * 10
+                
+                # Create prediction DataFrame
+                pred_df = pd.DataFrame({
+                    'Date': dates,
+                    'Predicted Usage': base_predictions,
+                    'Lower Bound': lower_bound,
+                    'Upper Bound': upper_bound
+                })
+                
+                # Plot with confidence intervals
+                fig = px.line(pred_df, x='Date', y=['Predicted Usage', 'Lower Bound', 'Upper Bound'],
+                             labels={'value': 'Usage', 'variable': 'Prediction Type'},
+                             title=f'Usage Prediction with {confidence}% Confidence Interval')
                 st.plotly_chart(fig)
+                
+                # Add prediction insights
+                avg_prediction = np.mean(base_predictions)
+                trend = 'increasing' if base_predictions[-1] > base_predictions[0] else 'decreasing'
+                st.info(f'Average predicted usage: {avg_prediction:.2f} with a {trend} trend')
     
     elif page == 'Allocation Management' and st.session_state.role != 'user':
         st.title('Spectrum Allocation Management')
